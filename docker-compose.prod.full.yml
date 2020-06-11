@@ -6,26 +6,6 @@ services:
     container_name: traefik
     env_file:
       - .prod.full.env
-    command:
-      - --debug=false
-      - --api.insecure=false
-      - --providers.docker
-      - --providers.docker.exposedbydefault=false
-      - --docker.domain=hhparser.awkr.site
-      - --docker.endpoint=unix:///var/run/docker.sock
-      - --accesslog
-      - --log
-      - --api
-      - --defaultentrypoints=https,http
-      - --entryPoints=Name:http Address::80 Redirect.EntryPoint:https
-      - --entryPoints=Name:https Address::443 TLS
-      - --retry
-      - --acme
-      - --certificatesresolvers.parser.acme.email=terr.kuzyashin@gmail.com
-      - --certificatesresolvers.parser.acme.storage=/traefik/acme.json
-      - --certificatesresolvers.parser.acme.entryPoints=https
-      - --certificatesresolvers.parser.acme.onHostRule=true
-      - --certificatesresolvers.parser.acme.httpchallenge.entrypoint=http
     labels:
       - traefik.enable=true
       #- traefik.http.routers.api.rule=Host(`traefik.${DOMAIN}`)
