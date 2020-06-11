@@ -13,6 +13,10 @@ services:
       - traefik.http.routers.api.service=api@internal
       - traefik.http.routers.api.middlewares=auth
       - traefik.http.middlewares.auth.basicauth.users=awaker:$$apr1$$fjUPC25L$$eXYA/ozckyqZTVN1WDGVY0
+      - traefik.http.routers.api.tls=true
+      - traefik.http.routers.api.tls.certresolver=le
+      - traefik.http.routers.api.tls.domains[0].main=${DOMAIN}
+      - traefik.http.routers.api.tls.domains[0].sans=*.${DOMAIN}
     ports:
       - 80:80
       - 443:443

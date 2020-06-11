@@ -25,10 +25,10 @@ watch = true
 # I prefer to expose my containers explicitly
 exposedbydefault = false
 
-[acme]
-email = "terr.kuzyashin@gmail.com"
-storage = "traefik/acme.json"
-entryPoint = "https"
-OnHostRule = true
-[acme.httpChallenge]
-entryPoint = "http"
+
+[certificatesResolvers.parser.acme]
+  email = "terr.kuzyashin@gmail.com"
+  storage = "traefik/acme.json"
+  [certificatesResolvers.parser.acme.httpChallenge]
+    # used during the challenge
+    entryPoint = "http"
