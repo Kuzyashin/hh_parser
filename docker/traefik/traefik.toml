@@ -6,7 +6,7 @@ defaultEntryPoints = ["https","http"]
   [entryPoints.http]
     address = ":80"
     [entryPoints.http.redirect]
-    entryPoint = "https"
+      entryPoint = "https"
   [entryPoints.https]
     address = ":443"
   [entryPoints.https.tls]
