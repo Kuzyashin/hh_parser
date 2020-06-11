@@ -9,6 +9,7 @@ defaultEntryPoints = ["https","http"]
     address = ":443"
 
 # REMOVE this section if you don't want the dashboard/API
+[api]
 [http.routers.api]
   rule = "Host(`traefik.hhparser.awkr.site`)"
   service = "api@internal"
