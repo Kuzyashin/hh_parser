@@ -5,13 +5,24 @@ services:
     image: traefik:v2.2
     container_name: traefik
     command:
+      - --debug=false
       - --api.insecure=false
       - --providers.docker
       - --providers.docker.exposedbydefault=false
-      - --entryPoints.web.address=:80
+      - --docker.domain=hhparser.awkr.site
+      - --docker.endpoint=unix:///var/run/docker.sock
       - --accesslog
       - --log
       - --api
+      - --defaultentrypoints=https,http
+      - --entryPoints=Name:http Address::80 Redirect.EntryPoint:https
+      - --entryPoints=Name:https Address::443 TLS
+      - --retry
+      - --acme.email=terr.kuzyashin@gmail.com
+      - --acme.storage=acme.json
+      - --acme.entryPoint=https
+      - --acme.onHostRule=true
+      - --acme.httpchallenge.entrypoint=http
     labels:
       - traefik.enable=true
       - traefik.http.routers.api.rule=Host(`traefik.${DOMAIN?Variable not set}`)
@@ -20,9 +31,12 @@ services:
       - traefik.http.middlewares.auth.basicauth.users=awaker:$$apr1$$fjUPC25L$$eXYA/ozckyqZTVN1WDGVY0
     ports:
       - 80:80
+      - 443:443
       - 8080:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - /docker/traefik/traefik.toml:/traefik.toml
+      - /docker/traefik/acme.json:/acme.json
 
 
   backend:
@@ -41,7 +55,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.backend.rule=Host(`backend.${DOMAIN?Variable not set}`)
-      - traefik.http.routers.backend.entrypoints=web
+      - traefik.http.routers.backend.entrypoints=http,https
       - traefik.http.services.backend.loadbalancer.server.port=8000
 
   celery:
@@ -73,7 +87,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.flower.rule=Host(`flower.${DOMAIN?Variable not set}`)
-      - traefik.http.routers.flower.entrypoints=web
+      - traefik.http.routers.flower.entrypoints=http,https
       - traefik.http.services.flower.loadbalancer.server.port=8888
 
   redis:
@@ -106,7 +120,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.rabbit.rule=Host(`rabbit.${DOMAIN?Variable not set}`)
-      - traefik.http.routers.rabbit.entrypoints=web
+      - traefik.http.routers.rabbit.entrypoints=http,https
       - traefik.http.services.rabbit.loadbalancer.server.port=15672
 
   db:
@@ -128,5 +142,5 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.pgadmin.rule=Host(`pgadmin.${DOMAIN?Variable not set}`)
-      - traefik.http.routers.pgadmin.entrypoints=web
+      - traefik.http.routers.pgadmin.entrypoints=http,https
       - traefik.http.services.pgadmin.loadbalancer.server.port=5050
