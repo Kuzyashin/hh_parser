@@ -27,7 +27,7 @@ services:
       - --acme.httpchallenge.entrypoint=http
     labels:
       - traefik.enable=true
-      - traefik.http.routers.api.rule=Host(`traefik.${DOMAIN?Variable not set}`)
+      - traefik.http.routers.api.rule=Host(`traefik.${DOMAIN}`)
       - traefik.http.routers.api.service=api@internal
       - traefik.http.routers.api.middlewares=auth
       - traefik.http.middlewares.auth.basicauth.users=awaker:$$apr1$$fjUPC25L$$eXYA/ozckyqZTVN1WDGVY0
@@ -56,7 +56,7 @@ services:
       - ./app:/app
     labels:
       - traefik.enable=true
-      - traefik.http.routers.backend.rule=Host(`backend.${DOMAIN?Variable not set}`)
+      - traefik.http.routers.backend.rule=Host(`backend.${DOMAIN}`)
       - traefik.http.routers.backend.entrypoints=http,https
       - traefik.http.services.backend.loadbalancer.server.port=8000
 
@@ -88,7 +88,7 @@ services:
       - 8888
     labels:
       - traefik.enable=true
-      - traefik.http.routers.flower.rule=Host(`flower.${DOMAIN?Variable not set}`)
+      - traefik.http.routers.flower.rule=Host(`flower.${DOMAIN}`)
       - traefik.http.routers.flower.entrypoints=http,https
       - traefik.http.services.flower.loadbalancer.server.port=8888
 
@@ -121,7 +121,7 @@ services:
       - 15672
     labels:
       - traefik.enable=true
-      - traefik.http.routers.rabbit.rule=Host(`rabbit.${DOMAIN?Variable not set}`)
+      - traefik.http.routers.rabbit.rule=Host(`rabbit.${DOMAIN}`)
       - traefik.http.routers.rabbit.entrypoints=http,https
       - traefik.http.services.rabbit.loadbalancer.server.port=15672
 
@@ -143,6 +143,6 @@ services:
       - .prod.full.env
     labels:
       - traefik.enable=true
-      - traefik.http.routers.pgadmin.rule=Host(`pgadmin.${DOMAIN?Variable not set}`)
+      - traefik.http.routers.pgadmin.rule=Host(`pgadmin.${DOMAIN}`)
       - traefik.http.routers.pgadmin.entrypoints=http,https
       - traefik.http.services.pgadmin.loadbalancer.server.port=5050
