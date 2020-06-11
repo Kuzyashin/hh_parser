@@ -9,6 +9,7 @@ from app.settings.config import settings
 from app.settings.log import DEFAULT_LOGGING
 from app.core.auth.routers.login import router as login_router
 from app.applications.users.routes import router as users_router
+from app.applications.parser.routers import router as search_router
 
 
 def configure_logging(log_settings: dict = None):
@@ -50,3 +51,4 @@ def register_exceptions(app: FastAPI):
 def register_routers(app: FastAPI):
     app.include_router(login_router, prefix='/api/auth/login')
     app.include_router(users_router, prefix='/api/auth/users')
+    app.include_router(search_router, prefix='/api/parser/search')
