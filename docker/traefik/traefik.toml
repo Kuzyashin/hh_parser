@@ -7,7 +7,6 @@ defaultEntryPoints = ["https","http"]
     address = ":80"
   [entryPoints.https]
     address = ":443"
-  [entryPoints.https.tls]
 
 # REMOVE this section if you don't want the dashboard/API
 [http.routers.api]
