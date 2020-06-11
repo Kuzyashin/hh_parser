@@ -14,7 +14,6 @@ services:
       - traefik.http.routers.api.middlewares=auth
       - traefik.http.middlewares.auth.basicauth.users=awaker:$$apr1$$fjUPC25L$$eXYA/ozckyqZTVN1WDGVY0
       - traefik.http.routers.api.tls=true
-      - traefik.http.routers.api.tls.certresolver=le
       - traefik.http.routers.api.tls.domains[0].main=${DOMAIN}
       - traefik.http.routers.api.tls.domains[0].sans=*.${DOMAIN}
       - traefik.http.routers.api.middlewares=redirect-to-https
@@ -25,7 +24,7 @@ services:
       - 8080:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./docker/traefik/:/traefic
+      - ./docker/traefik/acme.json:/acme.json
       - ./docker/traefik/traefik.toml:/traefik.toml
 
 

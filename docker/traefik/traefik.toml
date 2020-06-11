@@ -29,7 +29,7 @@ defaultEntryPoints = ["https","http"]
 
 [certificatesResolvers.parser.acme]
   email = "terr.kuzyashin@gmail.com"
-  storage = "traefik/acme.json"
+  storage = "acme.json"
   [certificatesResolvers.parser.acme.httpChallenge]
     # used during the challenge
     entryPoint = "http"
