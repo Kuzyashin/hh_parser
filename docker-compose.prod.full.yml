@@ -57,8 +57,7 @@ services:
   backend:
     image: backend:latest-prod-full
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     env_file:
       - .prod.full.env
     build:
@@ -146,8 +145,7 @@ services:
   pgadmin:
     image: dpage/pgadmin4
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     env_file:
       - .prod.full.env
     labels:
