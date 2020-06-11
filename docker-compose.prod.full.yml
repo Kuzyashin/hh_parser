@@ -40,6 +40,20 @@ services:
       - ./docker/traefik/:/traefic
 
 
+  db:
+    image: postgres:12
+    volumes:
+      - ./docker/postgres/:/var/lib/postgresql/data/pgdata
+    env_file:
+      - .prod.full.env
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
   backend:
     image: backend:latest-prod-full
     depends_on:
@@ -128,22 +142,6 @@ services:
       - traefik.http.routers.rabbit.entrypoints=http,https
       - traefik.http.services.rabbit.loadbalancer.server.port=15672
       - traefik.http.routers.rabbit.tls.certresolver=parser
-
-
-  db:
-    image: postgres:12
-    volumes:
-      - ./docker/postgres/:/var/lib/postgresql/data/pgdata
-    env_file:
-      - .prod.full.env
-    environment:
-      - PGDATA=/var/lib/postgresql/data/pgdata
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
 
   pgadmin:
     image: dpage/pgadmin4
