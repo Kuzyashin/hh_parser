@@ -1,32 +1,20 @@
 version: "3.8"
 services:
 
-  traefik:
-    image: traefik:v2.2
-    container_name: traefik
-    env_file:
-      - .prod.full.env
-    labels:
-      - traefik.enable=true
-      #- traefik.http.routers.api.rule=Host(`traefik.${DOMAIN}`)
-      - traefik.frontend.rule=Host:traefik.${DOMAIN}
-      - traefik.http.routers.api.service=api@internal
-      - traefik.http.routers.api.middlewares=auth
-      - traefik.http.middlewares.auth.basicauth.users=awaker:$$apr1$$fjUPC25L$$eXYA/ozckyqZTVN1WDGVY0
-      - traefik.http.routers.api.tls=true
-      - traefik.http.routers.api.tls.domains[0].main=${DOMAIN}
-      - traefik.http.routers.api.tls.domains[0].sans=*.${DOMAIN}
-      - traefik.http.routers.api.middlewares=redirect-to-https
-      - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    command: '/bin/sh -c ''while :; do sleep 336h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/certbot/conf:/etc/letsencrypt
+      - ./docker/nginx/certbot/www:/var/www/certbot
     ports:
       - 80:80
       - 443:443
-      - 8080:8080
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./docker/traefik/acme.json:/acme.json
-      - ./docker/traefik/traefik.toml:/traefik.toml
-
+    networks:
+      - app-network
+      - default
 
   db:
     image: postgres:12
@@ -36,11 +24,17 @@ services:
       - .prod.full.env
     environment:
       - PGDATA=/var/lib/postgresql/data/pgdata
+    networks:
+      - app-network
+      - default
+
 
   backend:
     image: backend:latest-prod-full
     depends_on:
       - db
+      - rabbitmq
+      - redis
     env_file:
       - .prod.full.env
     build:
@@ -50,12 +44,9 @@ services:
       - 8000
     volumes:
       - ./app:/app
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.backend.rule=Host(`backend.${DOMAIN}`)
-      - traefik.http.routers.backend.entrypoints=http,https
-      - traefik.http.services.backend.loadbalancer.server.port=8000
-      - traefik.http.routers.backend.tls.certresolver=parser
+    networks:
+      - app-network
+      - default
 
   celery:
     image: celery:latest-prod-full
@@ -70,6 +61,9 @@ services:
       - backend
     volumes:
       - ./app:/app
+    networks:
+      - app-network
+      - default
 
   flower:
     image: flower:latest-prod-full
@@ -83,14 +77,9 @@ services:
       - ./app:/app
     ports:
       - 8888
-    labels:
-      - traefik.enable=true
-      #- traefik.http.routers.flower.rule=Host(`flower.${DOMAIN}`)
-      - traefik.frontend.rule=Host:flower.${DOMAIN}
-      - traefik.http.routers.flower.entrypoints=http,https
-      - traefik.http.services.flower.loadbalancer.server.port=8888
-      - traefik.http.routers.flower.tls.certresolver=parser
-
+    networks:
+      - app-network
+      - default
 
   redis:
     image: redis
@@ -98,10 +87,8 @@ services:
     env_file:
       - .prod.full.env
     command: [ "redis-server", "/docker/redis/redis.conf" ]
-
     ports:
       - 6379
-
     volumes:
       - ./docker/redis/redis-data:/data/bases
       - ./docker/redis/redis.conf:/docker/redis/redis.conf
@@ -119,25 +106,36 @@ services:
     ports:
       - 5672
       - 15672
-    labels:
-      - traefik.enable=true
-      #- traefik.http.routers.rabbit.rule=Host(`rabbit.${DOMAIN}`)
-      - traefik.frontend.rule=Host:rabbit.${DOMAIN}
-      - traefik.http.routers.rabbit.entrypoints=http,https
-      - traefik.http.services.rabbit.loadbalancer.server.port=15672
-      - traefik.http.routers.rabbit.tls.certresolver=parser
+    networks:
+      - app-network
+      - default
 
   pgadmin:
     image: dpage/pgadmin4
+    ports:
+    - 5050
     depends_on:
       - db
     env_file:
       - .prod.full.env
-    labels:
-      - traefik.enable=true
-      #- traefik.http.routers.pgadmin.rule=Host(`pgadmin.${DOMAIN}`)
-      - traefik.frontend.rule=Host:pgadmin.${DOMAIN}
-      - traefik.http.routers.pgadmin.entrypoints=http,https
-      - traefik.http.services.pgadmin.loadbalancer.server.port=5050
-      - traefik.http.routers.pgadmin.tls.certresolver=parser
+    networks:
+      - app-network
+      - default
 
+  certbot:
+    container_name: certbot
+    entrypoint:  "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 118h & wait $${!}; done;'"
+    image: certbot/certbot
+    volumes:
+      - ./docker/nginx/certbot/conf:/etc/letsencrypt
+      - ./docker/nginx/certbot/www:/var/www/certbot
+    networks:
+      - app-network
+      - default
+
+
+networks:
+  app-network:
+    external: true
+  default:
+    external: false
