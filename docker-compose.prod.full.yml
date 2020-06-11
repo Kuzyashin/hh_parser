@@ -17,6 +17,8 @@ services:
       - traefik.http.routers.api.tls.certresolver=le
       - traefik.http.routers.api.tls.domains[0].main=${DOMAIN}
       - traefik.http.routers.api.tls.domains[0].sans=*.${DOMAIN}
+      - traefik.http.routers.api.middlewares=redirect-to-https
+      - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
     ports:
       - 80:80
       - 443:443
