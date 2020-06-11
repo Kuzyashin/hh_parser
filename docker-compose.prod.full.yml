@@ -21,7 +21,7 @@ services:
       - --entryPoints=Name:https Address::443 TLS
       - --retry
       - --acme.email=terr.kuzyashin@gmail.com
-      - --acme.storage=acme.json
+      - --acme.storage=/traefic/acme.json
       - --acme.entryPoint=https
       - --acme.onHostRule=true
       - --acme.httpchallenge.entrypoint=http
@@ -37,8 +37,7 @@ services:
       - 8080:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /docker/traefik/:.
-      - /docker/traefik/acme.json:/acme.json
+      - ./docker/traefik/:/traefic
 
 
   backend:
