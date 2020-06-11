@@ -20,14 +20,16 @@ services:
       - --entryPoints=Name:http Address::80 Redirect.EntryPoint:https
       - --entryPoints=Name:https Address::443 TLS
       - --retry
+      - --acme
       - --certificatesresolvers.parser.acme.email=terr.kuzyashin@gmail.com
-      - --certificatesresolvers.parser.acme.storage=/traefic/acme.json
-      - --certificatesresolvers.parser.acme.entryPoint=https
+      - --certificatesresolvers.parser.acme.storage=/traefik/acme.json
+      - --certificatesresolvers.parser.acme.entryPoints=https
       - --certificatesresolvers.parser.acme.onHostRule=true
       - --certificatesresolvers.parser.acme.httpchallenge.entrypoint=http
     labels:
       - traefik.enable=true
-      - traefik.http.routers.api.rule=Host(`traefik.${DOMAIN}`)
+      #- traefik.http.routers.api.rule=Host(`traefik.${DOMAIN}`)
+      - traefik.frontend.rule=Host:traefik.${DOMAIN}
       - traefik.http.routers.api.service=api@internal
       - traefik.http.routers.api.middlewares=auth
       - traefik.http.middlewares.auth.basicauth.users=awaker:$$apr1$$fjUPC25L$$eXYA/ozckyqZTVN1WDGVY0
@@ -38,6 +40,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./docker/traefik/:/traefic
+      - ./docker/traefik/traefik.toml:/traefik.toml
 
 
   db:
@@ -97,7 +100,8 @@ services:
       - 8888
     labels:
       - traefik.enable=true
-      - traefik.http.routers.flower.rule=Host(`flower.${DOMAIN}`)
+      #- traefik.http.routers.flower.rule=Host(`flower.${DOMAIN}`)
+      - traefik.frontend.rule=Host:flower.${DOMAIN}
       - traefik.http.routers.flower.entrypoints=http,https
       - traefik.http.services.flower.loadbalancer.server.port=8888
       - traefik.http.routers.flower.tls.certresolver=parser
@@ -132,7 +136,8 @@ services:
       - 15672
     labels:
       - traefik.enable=true
-      - traefik.http.routers.rabbit.rule=Host(`rabbit.${DOMAIN}`)
+      #- traefik.http.routers.rabbit.rule=Host(`rabbit.${DOMAIN}`)
+      - traefik.frontend.rule=Host:rabbit.${DOMAIN}
       - traefik.http.routers.rabbit.entrypoints=http,https
       - traefik.http.services.rabbit.loadbalancer.server.port=15672
       - traefik.http.routers.rabbit.tls.certresolver=parser
@@ -145,7 +150,8 @@ services:
       - .prod.full.env
     labels:
       - traefik.enable=true
-      - traefik.http.routers.pgadmin.rule=Host(`pgadmin.${DOMAIN}`)
+      #- traefik.http.routers.pgadmin.rule=Host(`pgadmin.${DOMAIN}`)
+      - traefik.frontend.rule=Host:pgadmin.${DOMAIN}
       - traefik.http.routers.pgadmin.entrypoints=http,https
       - traefik.http.services.pgadmin.loadbalancer.server.port=5050
       - traefik.http.routers.pgadmin.tls.certresolver=parser
