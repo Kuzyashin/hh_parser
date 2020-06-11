@@ -23,7 +23,6 @@ defaultEntryPoints = ["https","http"]
 
 [providers.docker]
   endpoint = "unix:///var/run/docker.sock"
-  domain = "hhparser.awkr.site"
   watch = true
   exposedbydefault = false
 
