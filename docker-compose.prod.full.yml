@@ -4,6 +4,8 @@ services:
   traefik:
     image: traefik:v2.2
     container_name: traefik
+    env_file:
+      - .prod.full.env
     command:
       - --debug=false
       - --api.insecure=false
