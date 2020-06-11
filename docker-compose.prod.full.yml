@@ -20,11 +20,11 @@ services:
       - --entryPoints=Name:http Address::80 Redirect.EntryPoint:https
       - --entryPoints=Name:https Address::443 TLS
       - --retry
-      - --acme.email=terr.kuzyashin@gmail.com
-      - --acme.storage=/traefic/acme.json
-      - --acme.entryPoint=https
-      - --acme.onHostRule=true
-      - --acme.httpchallenge.entrypoint=http
+      - --certificatesresolvers.parser.acme.email=terr.kuzyashin@gmail.com
+      - --certificatesresolvers.parser.acme.storage=/traefic/acme.json
+      - --certificatesresolvers.parser.acme.entryPoint=https
+      - --certificatesresolvers.parser.acme.onHostRule=true
+      - --certificatesresolvers.parser.acme.httpchallenge.entrypoint=http
     labels:
       - traefik.enable=true
       - traefik.http.routers.api.rule=Host(`traefik.${DOMAIN}`)
@@ -58,6 +58,7 @@ services:
       - traefik.http.routers.backend.rule=Host(`backend.${DOMAIN}`)
       - traefik.http.routers.backend.entrypoints=http,https
       - traefik.http.services.backend.loadbalancer.server.port=8000
+      - traefik.http.routers.backend.tls.certresolver=parser
 
   celery:
     image: celery:latest-prod-full
@@ -90,6 +91,8 @@ services:
       - traefik.http.routers.flower.rule=Host(`flower.${DOMAIN}`)
       - traefik.http.routers.flower.entrypoints=http,https
       - traefik.http.services.flower.loadbalancer.server.port=8888
+      - traefik.http.routers.flower.tls.certresolver=parser
+
 
   redis:
     image: redis
@@ -123,6 +126,8 @@ services:
       - traefik.http.routers.rabbit.rule=Host(`rabbit.${DOMAIN}`)
       - traefik.http.routers.rabbit.entrypoints=http,https
       - traefik.http.services.rabbit.loadbalancer.server.port=15672
+      - traefik.http.routers.rabbit.tls.certresolver=parser
+
 
   db:
     image: postgres:12
@@ -145,3 +150,5 @@ services:
       - traefik.http.routers.pgadmin.rule=Host(`pgadmin.${DOMAIN}`)
       - traefik.http.routers.pgadmin.entrypoints=http,https
       - traefik.http.services.pgadmin.loadbalancer.server.port=5050
+      - traefik.http.routers.pgadmin.tls.certresolver=parser
+
