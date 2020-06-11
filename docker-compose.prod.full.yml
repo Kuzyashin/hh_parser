@@ -43,7 +43,7 @@ services:
   db:
     image: postgres:12
     volumes:
-      - ./docker/postgres/:/var/lib/postgresql/data/pgdata
+      - ./docker/postgres/pg_data/:/var/lib/postgresql/data/pgdata
     env_file:
       - .prod.full.env
     environment:
