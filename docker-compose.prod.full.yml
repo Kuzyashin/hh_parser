@@ -37,7 +37,7 @@ services:
       - 8080:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /docker/traefik/traefik.toml:/traefik.toml
+      - /docker/traefik/:/
       - /docker/traefik/acme.json:/acme.json
 
 
