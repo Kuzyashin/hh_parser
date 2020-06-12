@@ -27,7 +27,8 @@ async def read_me(
             0, title='Skip', description='Skip data in query'
         ),
 ):
-    client_ip = request.client.host
+    headers = request.headers
+    client_ip = headers.get('X-Real-IP')
     rest_user = await RestUser.filter(ip=client_ip).first()
     if not rest_user:
         rest_user = await RestUser.create(ip=client_ip)
