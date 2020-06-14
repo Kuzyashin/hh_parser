@@ -1,0 +1,88 @@
+version: "3.8"
+services:
+
+  db:
+    image: postgres:12
+    volumes:
+      - ./docker/postgres/pg_data/:/var/lib/postgresql/data/pgdata
+    env_file:
+      - .prod.full.env
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+
+
+  backend:
+    image: backend:latest-prod-full
+    depends_on:
+      - db
+      - rabbitmq
+      - redis
+    env_file:
+      - .prod.full.env
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+    ports:
+      - 8000:8000
+    volumes:
+      - ./app:/app
+
+  celery:
+    image: celery:latest-prod-full
+    env_file:
+      - .prod.full.env
+    build:
+      context: .
+      dockerfile: celery.Dockerfile
+    depends_on:
+      - backend
+    volumes:
+      - ./app:/app
+
+  flower:
+    image: flower:latest-prod-full
+    container_name: flower
+    build:
+      context: .
+      dockerfile: flower.Dockerfile
+    env_file:
+      - .prod.full.env
+    volumes:
+      - ./app:/app
+    ports:
+      - 8888:8888
+
+  redis:
+    image: redis
+    container_name: redis
+    env_file:
+      - .prod.full.env
+    command: [ "redis-server", "/docker/redis/redis.conf" ]
+    ports:
+      - 6379
+    volumes:
+      - ./docker/redis/redis-data:/data/bases
+      - ./docker/redis/redis.conf:/docker/redis/redis.conf
+      - ./docker/redis/log:/docker/redis/log
+
+  rabbitmq:
+    image: rabbitmq:3.8.4-management
+    container_name: rabbitmq
+    env_file:
+      - .prod.full.env
+    volumes:
+      - ./docker/rabbitmq/etc/:/etc/rabbitmq/
+      - ./docker/rabbitmq/data/:/var/lib/rabbitmq/
+      - ./docker/rabbitmq/logs/:/var/log/rabbitmq/
+    ports:
+      - 5672
+      - 15672:15672
+
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+    - 5050:5050
+    depends_on:
+      - db
+    env_file:
+      - .prod.full.env
