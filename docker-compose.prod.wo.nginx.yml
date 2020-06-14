@@ -9,6 +9,9 @@ services:
       - .prod.full.env
     environment:
       - PGDATA=/var/lib/postgresql/data/pgdata
+    networks:
+      - default
+      - shared_net
 
 
   backend:
@@ -64,6 +67,9 @@ services:
       - ./docker/redis/redis-data:/data/bases
       - ./docker/redis/redis.conf:/docker/redis/redis.conf
       - ./docker/redis/log:/docker/redis/log
+    networks:
+      - default
+      - shared_net
 
   rabbitmq:
     image: rabbitmq:3.8.4-management
@@ -77,6 +83,9 @@ services:
     ports:
       - 5672
       - 15672:15672
+    networks:
+      - default
+      - shared_net
 
   pgadmin:
     image: dpage/pgadmin4
@@ -86,3 +95,9 @@ services:
       - db
     env_file:
       - .prod.full.env
+
+
+networks:
+  default:
+  shared_net:
+    external: true
